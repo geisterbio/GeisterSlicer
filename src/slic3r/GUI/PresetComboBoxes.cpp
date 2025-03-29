@@ -938,7 +938,8 @@ void PlaterPresetComboBox::update()
         filament_color = m_preset_bundle->project_config.opt_string("filament_colour", (unsigned int) m_filament_idx);
         wxColor clr(filament_color);
         clr_picker->SetBackgroundColour(clr);
-        clr_picker->SetBitmap(*get_extruder_color_icons(true)[m_filament_idx]);
+        auto extruderIcons = *get_extruder_color_icons(true)[m_filament_idx];
+        clr_picker->SetBitmap(extruderIcons);
 #ifdef __WXOSX__
         clr_picker->SetLabel(clr_picker->GetLabel()); // Let setBezelStyle: be called
         clr_picker->Refresh();
