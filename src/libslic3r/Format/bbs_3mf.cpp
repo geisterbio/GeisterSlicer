@@ -1034,6 +1034,12 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         std::map<int, std::string> m_group_id_to_color;
 
     public:
+
+        // Add this member variable to the appropriate class idx, 
+        std::map<std::string, std::map<std::string, std::string>> m_metadata_obj_map = {};
+        std::string                                               m_currId             = "-1";
+
+
         _BBS_3MF_Importer();
         ~_BBS_3MF_Importer();
 
@@ -3798,9 +3804,17 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         } else {
             ;
         }
-        if (!m_curr_metadata_name.empty()) {
+        if (!m_curr_metadata_name.empty()) {      
             BOOST_LOG_TRIVIAL(info) << "load_3mf found metadata key = " << m_curr_metadata_name << ", value = " << xml_unescape(m_curr_characters);
             model_info.metadata_items[m_curr_metadata_name] = xml_unescape(m_curr_characters);
+
+            // save the same info in a the metadata obj map
+            if (m_curr_metadata_name == "customXMLNS0:cubeIndex") {
+                m_currId                   = xml_unescape(m_curr_characters);
+                m_metadata_obj_map[m_currId] = {};
+            } else {
+                m_metadata_obj_map[m_currId][m_curr_metadata_name] = xml_unescape(m_curr_characters);
+            }
         }
 
         return true;
