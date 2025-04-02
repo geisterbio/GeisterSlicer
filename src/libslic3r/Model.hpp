@@ -350,7 +350,7 @@ enum class ModelVolumeType : int {
 // and possibly having multiple modifier volumes, each modifier volume with its set of parameters and materials.
 // Each ModelObject may be instantiated mutliple times, each instance having different placement on the print bed,
 // different rotation and different uniform scaling.
-class ModelObject final : public ObjectBase
+class ModelObject final : public ObjectBase // TODO:GB add metadata map here
 {
 public:
     std::string             name;
@@ -1488,7 +1488,7 @@ public:
     std::shared_ptr<ModelInfo> model_info = nullptr;
     std::shared_ptr<ModelProfileInfo> profile_info = nullptr;
 
-
+    // TODO map this to object list
     std::shared_ptr<std::map<std::string, std::map<std::string, std::string>>> m_metadata_obj_map = nullptr;
 
     //makerlab information

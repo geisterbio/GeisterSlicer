@@ -1719,7 +1719,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         m_model->model_info = std::make_shared<ModelInfo>();
         m_model->model_info->load(model_info);
 
-       // TODO check pointer connection this does not work: m_model->m_metadata_obj_map = m_metadata_obj_map;
+       // TODO:GB map directly to object list instead of this
         m_model->m_metadata_obj_map = std::make_shared<std::map<std::string, std::map<std::string, std::string>>>(m_metadata_obj_map);
 
         if (!m_thumbnail_small.empty()) m_model->model_info->metadata_items.emplace("Thumbnail_Small", m_thumbnail_small);
