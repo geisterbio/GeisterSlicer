@@ -1489,7 +1489,7 @@ public:
     std::shared_ptr<ModelProfileInfo> profile_info = nullptr;
 
 
-    std::map<std::string, std::map<std::string, std::string>> m_metadata_obj_map = {};
+    std::shared_ptr<std::map<std::string, std::map<std::string, std::string>>> m_metadata_obj_map = nullptr;
 
     //makerlab information
     std::string mk_name;
