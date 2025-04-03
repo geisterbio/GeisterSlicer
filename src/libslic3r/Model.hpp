@@ -357,6 +357,7 @@ public:
     //BBS: add module name for assemble
     std::string             module_name;
     std::string             input_file;    // XXX: consider fs::path
+    std::map<std::string, std::string> metadata_map = std::map<std::string, std::string>();
     // Instances of this ModelObject. Each instance defines a shift on the print bed, rotation around the Z axis and a uniform scaling.
     // Instances are owned by this ModelObject.
     ModelInstancePtrs       instances;
@@ -1487,9 +1488,6 @@ public:
     std::shared_ptr<ModelDesignInfo> design_info = nullptr;
     std::shared_ptr<ModelInfo> model_info = nullptr;
     std::shared_ptr<ModelProfileInfo> profile_info = nullptr;
-
-    // TODO map this to object list
-    std::shared_ptr<std::map<std::string, std::map<std::string, std::string>>> m_metadata_obj_map = nullptr;
 
     //makerlab information
     std::string mk_name;

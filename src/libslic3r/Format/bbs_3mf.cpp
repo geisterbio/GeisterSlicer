@@ -694,6 +694,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
             //BBS: sub object id
             //int subobject_id;
             std::string name;
+            std::map<std::string, std::string> metadata_map = std::map<std::string, std::string>();
             std::string uuid;
             int         pid{-1};
             //bool is_model_object;
@@ -1036,7 +1037,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
     public:
 
         // Add this member variable to the appropriate class idx, 
-        std::map<std::string, std::map<std::string, std::string>> m_metadata_obj_map = {};
+        std::map<std::string, std::string> m_metadata_obj_map = {};
         std::string                                               m_currId             = "-1";
 
 
@@ -1719,9 +1720,6 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         m_model->model_info = std::make_shared<ModelInfo>();
         m_model->model_info->load(model_info);
 
-       // TODO:GB map directly to object list instead of this
-        m_model->m_metadata_obj_map = std::make_shared<std::map<std::string, std::map<std::string, std::string>>>(m_metadata_obj_map);
-
         if (!m_thumbnail_small.empty()) m_model->model_info->metadata_items.emplace("Thumbnail_Small", m_thumbnail_small);
         if (!m_thumbnail_middle.empty()) m_model->model_info->metadata_items.emplace("Thumbnail_Middle", m_thumbnail_middle);
 
@@ -2020,6 +2018,9 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
                     else
                         model_object->name = "Object_"+std::to_string(object.second+1);
 
+                    // ADD:GB get metadata from current obj
+                    model_object->metadata_map = current_object->second.metadata_map;
+                
                     // get color
                     auto extruder_itor = color_group_id_to_extruder_id_map.find(current_object->second.pid);
                     if (extruder_itor != color_group_id_to_extruder_id_map.end()) {
@@ -3449,6 +3450,12 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
 
             Id id = std::make_pair(m_sub_model_path, m_curr_object->id);
             if (m_current_objects.find(id) == m_current_objects.end()) {
+                // WIP:GB 
+                m_curr_object->metadata_map = m_metadata_obj_map;
+
+                //m_metadata_obj_map empty
+                m_metadata_obj_map = std::map<std::string, std::string>(); 
+
                 m_current_objects.insert({ id, std::move(*m_curr_object) });
                 delete m_curr_object;
                 m_curr_object = nullptr;
@@ -3813,12 +3820,8 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
             model_info.metadata_items[m_curr_metadata_name] = xml_unescape(m_curr_characters);
 
             // save the same info in a the metadata obj map
-            if (m_curr_metadata_name == "customXMLNS0:cubeIndex") {
-                m_currId                   = xml_unescape(m_curr_characters);
-                m_metadata_obj_map[m_currId] = {};
-            } else {
-                m_metadata_obj_map[m_currId][m_curr_metadata_name] = xml_unescape(m_curr_characters);
-            }
+            m_metadata_obj_map[m_curr_metadata_name] = xml_unescape(m_curr_characters);
+       
         }
 
         return true;
