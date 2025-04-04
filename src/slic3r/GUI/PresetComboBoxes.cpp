@@ -1107,6 +1107,8 @@ void PlaterPresetComboBox::update()
         else {
             set_label_marker(Append(separator(L("Select/Remove printers(system presets)")), *bmp), LABEL_ITEM_WIZARD_PRINTERS);
             set_label_marker(Append(separator(L("Create printer")), *bmp), LABEL_ITEM_WIZARD_ADD_PRINTERS);
+
+            set_label_marker(Append(separator(L("Create default Geister printer")), *bmp), LABEL_ITEM_WIZARD_ADD_DEFAULT_GEISTER_PRINTER);
         }
     }
 

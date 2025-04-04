@@ -1143,6 +1143,49 @@ Sidebar::Sidebar(Plater *parent)
 
 Sidebar::~Sidebar() {}
 
+
+void Sidebar::gb_create_default_geister_printer_preset() {
+    PresetBundle* preset_bundle = wxGetApp().preset_bundle;
+
+    // Hardcoded minimal configuration values
+    std::string printer_preset_name = "Default Printer";
+    std::string printer_model_name  = "Default Model";
+    std::string printer_nozzle_name = "0.4mm"; // Example nozzle diameter
+    std::string nozzle_diameter     = "0.4";   // Example nozzle diameter
+
+    // Create a new Preset object
+    //std::shared_ptr<Preset> new_preset = std::make_shared<Preset>();
+
+    // Set hardcoded values in the new preset config
+    //try {
+        // Setting the printer model
+    //    auto printer_model = dynamic_cast<ConfigOptionString*>(new_preset->config.option("printer_model", true));
+   //     if (printer_model) {
+   //         printer_model->value = printer_model_name;
+   //     }
+
+        // Setting the printer variant (e.g., nozzle size)
+    //    auto printer_variant = dynamic_cast<ConfigOptionString*>(new_preset->config.option("printer_variant", true));
+     //   if (printer_variant) {
+     //       printer_variant->value = printer_nozzle_name;
+   //     }
+
+        // Setting the nozzle diameter as a float
+    //    auto nozzle_diameter_option = dynamic_cast<ConfigOptionFloats*>(new_preset->config.option("nozzle_diameter", true));
+     //   if (nozzle_diameter_option) {
+    //        nozzle_diameter_option->values = {std::stof(nozzle_diameter)}; // Convert the string diameter to a float
+   //     }
+//} catch (...) {
+    //    BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << " Error setting the preset values";
+   // }
+
+    // Save the preset with the hardcoded values, passing a raw pointer to save_current_preset
+   // preset_bundle->printers.save_current_preset(printer_preset_name, true, false, new_preset.get());
+   // preset_bundle->update_compatible(PresetSelectCompatibleType::Always);
+    return;
+}
+
+
 void Sidebar::create_printer_preset()
 {
     CreatePrinterPresetDialog dlg(wxGetApp().mainframe);
@@ -6557,6 +6600,11 @@ void Plater::priv::on_select_preset(wxCommandEvent &evt)
     auto marker = reinterpret_cast<size_t>(combo->GetClientData(selection));
     if (PresetComboBox::LabelItemType::LABEL_ITEM_WIZARD_ADD_PRINTERS == marker) {
         sidebar->create_printer_preset();
+        return;
+    }
+
+    if (PresetComboBox::LabelItemType::LABEL_ITEM_WIZARD_ADD_DEFAULT_GEISTER_PRINTER == marker) {
+        sidebar->gb_create_default_geister_printer_preset();
         return;
     }
 
