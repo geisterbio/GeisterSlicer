@@ -2020,11 +2020,40 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
 
                     // ADD:GB get metadata from current obj
                     model_object->metadata_map = current_object->second.metadata_map;
+
+
+                    // create ext map name of material and extruder int 
+                    std::map<std::string, int> material_map = {
+                        {"alginate-00", 3}, 
+                        {"alginate-01", 4}, 
+                        {"alginate-02", 5}
+                    };
                 
                     // get color
                     auto extruder_itor = color_group_id_to_extruder_id_map.find(current_object->second.pid);
                     if (extruder_itor != color_group_id_to_extruder_id_map.end()) {
-                        model_object->config.set_key_value("extruder", new ConfigOptionInt(extruder_itor->second));
+
+
+                        // set color based on current metadata 
+                        std::string color = current_object->second.metadata_map.at("customXMLNS0:ink");
+
+                        // check if color is not empty
+                        if (!color.empty()) {
+                            auto it = material_map.find(color);
+                            
+                            // check if color is in material_map
+                            if (it != material_map.end()) {
+                                // set color
+                                model_object->config.set_key_value("extruder", new ConfigOptionInt(it->second));                          
+                            } else {
+                                // set default color
+                                model_object->config.set_key_value("extruder", new ConfigOptionInt(extruder_itor->second));
+                            }
+                        } else {
+                            // set default color
+                            model_object->config.set_key_value("extruder", new ConfigOptionInt(extruder_itor->second));
+                        }
+
                     }
                 }
 
