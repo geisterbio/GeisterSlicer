@@ -2023,11 +2023,35 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
 
 
                     // create ext map name of material and extruder int 
-                    std::map<std::string, int> material_map = {
-                        {"alginate-00", 3}, 
-                        {"alginate-01", 4}, 
-                        {"alginate-02", 5}
-                    };
+                    std::map<std::string, int> material_map = { };
+
+                    std::string json_file_path = "C:\\3mf\\material_map.json";
+                    
+                    try {
+                        // Open the JSON file
+                        std::ifstream json_file(json_file_path);
+                        if (!json_file.is_open()) {
+                            throw std::runtime_error("Unable to open JSON file: " + json_file_path);
+                        }
+
+                        // Parse the JSON file
+                        nlohmann::json json_data;
+                        json_file >> json_data;
+
+                        // Clear the existing map
+                        material_map.clear();
+
+                        // Populate the map from JSON
+                        for (const auto& [key, value] : json_data.items()) {
+                            if (value.is_number_integer()) {
+                                material_map[key] = value.get<int>();
+                            } else {
+                                throw std::runtime_error("Invalid value type for key: " + key);
+                            }
+                        }
+                    } catch (const std::exception& e) {
+                        std::cerr << "Error loading material map from JSON: " << e.what() << std::endl;
+                    }
                 
                     // get color
                     auto extruder_itor = color_group_id_to_extruder_id_map.find(current_object->second.pid);
