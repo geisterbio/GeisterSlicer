@@ -2071,6 +2071,10 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
 
                         // check if curr_obj_color_hex is not empty
                         if (!curr_obj_color_hex.empty()) {
+                            // ADDED:GB transform curr_obj_color_hex to uppercase, eg  "#1a2b3c" -> "#1A2B3C"
+                            std::transform(curr_obj_color_hex.begin(), curr_obj_color_hex.end(), curr_obj_color_hex.begin(),
+                                           [](char c) { return std::isalpha(c) ? std::toupper(c) : c; });
+
                             auto it = material_map.find(curr_obj_color_hex);
                             
                             // check if curr_obj_color_hex is in material_map
