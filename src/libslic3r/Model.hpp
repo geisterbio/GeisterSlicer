@@ -357,7 +357,7 @@ public:
     //BBS: add module name for assemble
     std::string             module_name;
     std::string             input_file;    // XXX: consider fs::path
-    std::map<std::string, std::string> metadata_map = std::map<std::string, std::string>();
+    std::map<std::string, std::string> metadata_map = std::map<std::string, std::string>(); // ADDED:GB
     // Instances of this ModelObject. Each instance defines a shift on the print bed, rotation around the Z axis and a uniform scaling.
     // Instances are owned by this ModelObject.
     ModelInstancePtrs       instances;

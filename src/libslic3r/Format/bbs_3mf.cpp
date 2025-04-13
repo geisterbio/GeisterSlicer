@@ -694,7 +694,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
             //BBS: sub object id
             //int subobject_id;
             std::string name;
-            std::map<std::string, std::string> metadata_map = std::map<std::string, std::string>();
+            std::map<std::string, std::string> metadata_map = std::map<std::string, std::string>(); // ADDED:GB
             std::string uuid;
             int         pid{-1};
             //bool is_model_object;
@@ -1037,7 +1037,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
     public:
 
         // Add this member variable to the appropriate class idx, 
-        std::map<std::string, std::string> m_metadata_obj_map = {};
+        std::map<std::string, std::string> m_metadata_obj_map = {}; // ADDED:GB
         std::string                                               m_currId             = "-1";
 
 
@@ -2018,15 +2018,15 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
                     else
                         model_object->name = "Object_"+std::to_string(object.second+1);
 
-                    // ADD:GB get metadata from current obj
+                    // ADDED:GB get metadata from current obj
                     model_object->metadata_map = current_object->second.metadata_map;
 
 
-                    // create ext map name of material and extruder int 
-                    std::map<std::string, int> material_map = { };
-
-                    std::string json_file_path = "C:\\3mf\\material_map.json";
+                    // ADDED:GB create ext map name of material and extruder int 
+                    std::map<std::string, int> material_map = { }; 
+                    std::string json_file_path = "C:\\3mf\\material_map.json"; 
                     
+                    // ADDED:GB
                     try {
                         // Open the JSON file
                         std::ifstream json_file(json_file_path);
@@ -2057,24 +2057,32 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
                     auto extruder_itor = color_group_id_to_extruder_id_map.find(current_object->second.pid);
                     if (extruder_itor != color_group_id_to_extruder_id_map.end()) {
 
+                        // ADDED:GB
+                        // set curr_obj_color_hex based on current metadata 
+                        std::string curr_obj_color_hex = "";
 
-                        // set color based on current metadata 
-                        std::string color = current_object->second.metadata_map.at("customXMLNS0:ink");
+                        // make sure if this key is not found the programm continues the default mapping 
+                        try {
+                            int curr_obj_pid = current_object->second.pid;
+                            curr_obj_color_hex = m_group_id_to_color.at(curr_obj_pid);
+                        } catch (const std::exception& e) {
+                            std::cerr << "Error accessing curr hexcolor" << e.what() << std::endl;
+                        }
 
-                        // check if color is not empty
-                        if (!color.empty()) {
-                            auto it = material_map.find(color);
+                        // check if curr_obj_color_hex is not empty
+                        if (!curr_obj_color_hex.empty()) {
+                            auto it = material_map.find(curr_obj_color_hex);
                             
-                            // check if color is in material_map
+                            // check if curr_obj_color_hex is in material_map
                             if (it != material_map.end()) {
-                                // set color
+                                // set curr_obj_color_hex
                                 model_object->config.set_key_value("extruder", new ConfigOptionInt(it->second));                          
                             } else {
-                                // set default color
+                                // set default curr_obj_color_hex
                                 model_object->config.set_key_value("extruder", new ConfigOptionInt(extruder_itor->second));
                             }
                         } else {
-                            // set default color
+                            // set default curr_obj_color_hex
                             model_object->config.set_key_value("extruder", new ConfigOptionInt(extruder_itor->second));
                         }
 
@@ -3503,11 +3511,10 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
 
             Id id = std::make_pair(m_sub_model_path, m_curr_object->id);
             if (m_current_objects.find(id) == m_current_objects.end()) {
-                // WIP:GB 
-                m_curr_object->metadata_map = m_metadata_obj_map;
+                m_curr_object->metadata_map = m_metadata_obj_map; // ADDED:GB
 
-                //m_metadata_obj_map empty
-                m_metadata_obj_map = std::map<std::string, std::string>(); 
+                // m_metadata_obj_map empty
+                m_metadata_obj_map = std::map<std::string, std::string>(); // ADDED:GB
 
                 m_current_objects.insert({ id, std::move(*m_curr_object) });
                 delete m_curr_object;
@@ -3873,7 +3880,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
             model_info.metadata_items[m_curr_metadata_name] = xml_unescape(m_curr_characters);
 
             // save the same info in a the metadata obj map
-            m_metadata_obj_map[m_curr_metadata_name] = xml_unescape(m_curr_characters);
+            m_metadata_obj_map[m_curr_metadata_name] = xml_unescape(m_curr_characters); // ADDED:GB
        
         }
 
