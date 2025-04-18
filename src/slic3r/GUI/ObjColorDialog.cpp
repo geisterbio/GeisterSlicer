@@ -14,7 +14,7 @@
 #include "BitmapComboBox.hpp"
 #include "Widgets/ComboBox.hpp"
 #include <wx/sizer.h>
-
+#include <cmath> // For std::round, std::ceil, std::floor
 #include "libslic3r/ObjColorUtils.hpp"
 
 using namespace Slic3r;
@@ -202,10 +202,10 @@ RGBA     convert_to_rgba(const wxColour &color)
 }
 wxColour convert_to_wxColour(const RGBA &color)
 {
-    auto     r = std::clamp((int) (color[0] * 255.f), 0, 255);
-    auto     g = std::clamp((int) (color[1] * 255.f), 0, 255);
-    auto     b = std::clamp((int) (color[2] * 255.f), 0, 255);
-    auto     a = std::clamp((int) (color[3] * 255.f), 0, 255);
+    auto     r = std::clamp(static_cast<int>(std::round(color[0] * 255.f)), 0, 255);
+    auto     g = std::clamp(static_cast<int>(std::round(color[1] * 255.f)), 0, 255);
+    auto     b = std::clamp(static_cast<int>(std::round(color[2] * 255.f)), 0, 255);
+    auto     a = std::clamp(static_cast<int>(std::round(color[3] * 255.f)), 0, 255);
     wxColour wx_color(r,g,b,a);
     return wx_color;
 }
@@ -691,27 +691,39 @@ void ObjColorPanel::draw_table()
 
 void ObjColorPanel::deal_algo(char cluster_number, bool redraw_ui)
 {
-    if (m_last_cluster_number == cluster_number) {
-        return;
+    // Clear previous colors
+    m_cluster_colors_from_algo.clear();
+
+    // Insert distinct colors from m_input_colors into m_cluster_colors_from_algo
+    std::set<Slic3r::RGBA> unique_colors;
+    for (const auto& color : m_input_colors) {
+        unique_colors.insert(color); // std::set ensures uniqueness
     }
-    m_last_cluster_number = cluster_number;
-    QuantKMeans quant(10);
-    quant.apply(m_input_colors, m_cluster_colors_from_algo, m_cluster_labels_from_algo, (int)cluster_number);
+
+    m_cluster_colors_from_algo.assign(unique_colors.begin(), unique_colors.end());
+
+    // Convert colors to wxColour and store in m_cluster_colours
     m_cluster_colours.clear();
     m_cluster_colours.reserve(m_cluster_colors_from_algo.size());
     for (size_t i = 0; i < m_cluster_colors_from_algo.size(); i++) {
         m_cluster_colours.emplace_back(convert_to_wxColour(m_cluster_colors_from_algo[i]));
     }
-    if (m_cluster_colours.size() == 0) {
-        BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << ",m_cluster_colours.size() = 0\n";
+
+    if (m_cluster_colours.empty()) {
+        BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << ", m_cluster_colours.size() = 0\n";
         return;
     }
+
+    // Resize cluster map to match number of unique colors
     m_cluster_map_filaments.resize(m_cluster_colors_from_algo.size());
     m_color_cluster_num_by_algo = m_cluster_colors_from_algo.size();
+
+    // If no specific cluster number was given, use all found
     if (cluster_number == -1) {
         m_color_num_recommend = m_color_cluster_num_by_algo;
     }
-    //redraw ui
+
+    // Redraw UI if requested
     if (redraw_ui) {
         redraw_part_table();
         deal_default_strategy();
