@@ -406,7 +406,7 @@ void ObjColorPanel::update_filament_ids()
    m_filament_ids.clear();
    m_filament_ids.reserve(m_input_colors_size);
    for (size_t i = 0; i < m_input_colors_size; i++) {
-       auto label = m_cluster_labels_from_algo[i];
+       auto label = m_cluster_labels_from_algo[i]; // TODO:GB FIX
        m_filament_ids.emplace_back(m_cluster_map_filaments[label]);
    }
    m_first_extruder_id = m_cluster_map_filaments[0];
