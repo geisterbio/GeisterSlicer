@@ -399,9 +399,9 @@ void ObjColorPanel::update_filament_ids()
         for (auto c:m_new_add_colors) {
             /*auto evt = new ColorEvent(EVT_ADD_CUSTOM_FILAMENT, c);
             wxQueueEvent(wxGetApp().plater(), evt);*/
-            wxGetApp().sidebar().add_custom_filament(c);
+                wxGetApp().sidebar().add_custom_filament(c);
+            }
         }
-    }
    //deal m_filament_ids
    m_filament_ids.clear();
    m_filament_ids.reserve(m_input_colors_size);
@@ -691,22 +691,35 @@ void ObjColorPanel::draw_table()
 
 void ObjColorPanel::deal_algo(char cluster_number, bool redraw_ui)
 {
-    // Clear previous colors
+    // Clear previous colors and labels
     m_cluster_colors_from_algo.clear();
+    m_cluster_labels_from_algo.clear();
 
     // Insert distinct colors from m_input_colors into m_cluster_colors_from_algo
-    std::set<Slic3r::RGBA> unique_colors;
+    std::vector<Slic3r::RGBA>   unique_colors;
+    std::map<Slic3r::RGBA, int> color_to_label;
+
     for (const auto& color : m_input_colors) {
-        unique_colors.insert(color); // std::set ensures uniqueness
+        if (color_to_label.find(color) == color_to_label.end()) {
+            int label             = static_cast<int>(unique_colors.size());
+            color_to_label[color] = label;
+            unique_colors.push_back(color);
+        }
     }
 
-    m_cluster_colors_from_algo.assign(unique_colors.begin(), unique_colors.end());
+    m_cluster_colors_from_algo = unique_colors;
+
+    // Create label mapping for input colors
+    m_cluster_labels_from_algo.reserve(m_input_colors.size());
+    for (const auto& color : m_input_colors) {
+        m_cluster_labels_from_algo.push_back(color_to_label[color]);
+    }
 
     // Convert colors to wxColour and store in m_cluster_colours
     m_cluster_colours.clear();
     m_cluster_colours.reserve(m_cluster_colors_from_algo.size());
-    for (size_t i = 0; i < m_cluster_colors_from_algo.size(); i++) {
-        m_cluster_colours.emplace_back(convert_to_wxColour(m_cluster_colors_from_algo[i]));
+    for (const auto& c : m_cluster_colors_from_algo) {
+        m_cluster_colours.emplace_back(convert_to_wxColour(c));
     }
 
     if (m_cluster_colours.empty()) {
@@ -718,7 +731,6 @@ void ObjColorPanel::deal_algo(char cluster_number, bool redraw_ui)
     m_cluster_map_filaments.resize(m_cluster_colors_from_algo.size());
     m_color_cluster_num_by_algo = m_cluster_colors_from_algo.size();
 
-    // If no specific cluster number was given, use all found
     if (cluster_number == -1) {
         m_color_num_recommend = m_color_cluster_num_by_algo;
     }
