@@ -399,7 +399,8 @@ void ObjColorPanel::update_filament_ids()
         for (auto c:m_new_add_colors) {
             /*auto evt = new ColorEvent(EVT_ADD_CUSTOM_FILAMENT, c);
             wxQueueEvent(wxGetApp().plater(), evt);*/
-                wxGetApp().sidebar().add_custom_filament(c);
+               // ADD:GB DISABLE AUTO ADD of Colors, bc filament should always be there beforehand!!!
+               // wxGetApp().sidebar().add_custom_filament(c);
             }
         }
    //deal m_filament_ids
